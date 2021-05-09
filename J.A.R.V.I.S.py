@@ -6,7 +6,6 @@ import PIL.Image
 import PIL.ImageTk
 import wmi
 import psutil
-import ctypes
 import pyttsx3
 import speech_recognition as sr
 import os
