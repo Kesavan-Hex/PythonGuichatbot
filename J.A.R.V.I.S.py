@@ -255,18 +255,18 @@ def call_jarvis():
         elif 'current weather' in voice_note:
             static_speech('There is an problem with API try again later')
             static_speech('Sorry for in convenience')
-          #reg_ex = re.search('current weather in (.*)', voice_note)
-            #if reg_ex:
-             #   city = reg_ex.group(1)
-              #  owm = OWM('ffb68b1e0b6c641259dca86934a9901d')
-               # mng = owm.weather_manager()
-                #obs = mng.weather_at_place(city)
-                #w = obs.get_weather()
-                #k = w.get_status()
-                #x = w.get_temperature(unit='celsius')
-               # static_speech(
-                #    'Current weather in %s is %s. The maximum temperature is %0.2f and the minimum temperature is %0.2f degree celcius' % (
-                 #   city, k, x['temp_max'], x['temp_min']))
+          reg_ex = re.search('current weather in (.*)', voice_note)
+            if reg_ex:
+                city = reg_ex.group(1)
+                owm = OWM('ffb68b1e0b6c641259dca86934a9901d')
+                mng = owm.weather_manager()
+                obs = mng.weather_at_place(city)
+                w = obs.get_weather()
+                k = w.get_status()
+                x = w.get_temperature(unit='celsius')
+                static_speech(
+                    'Current weather in %s is %s. The maximum temperature is %0.2f and the minimum temperature is %0.2f degree celcius' % (
+                    city, k, x['temp_max'], x['temp_min']))
         # Charge
         elif 'charge' in voice_note:
             battery = psutil.sensors_battery()
