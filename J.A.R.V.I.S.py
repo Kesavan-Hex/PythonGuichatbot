@@ -61,7 +61,7 @@ def read_voice_cmd():
 def static_speech(text):
     engine = pyttsx3.init('sapi5')
     voices = engine.getProperty('voices')
-    engine.setProperty('rate', 135)
+    engine.setProperty('rate', 145)
     engine.setProperty('voice', voices[0].id)
     engine.say(text)
     engine.runAndWait()
