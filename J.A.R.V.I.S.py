@@ -161,7 +161,7 @@ def call_jarvis():
         elif 'code' in voice_note or 'your code' in voice_note:
             print( 'Hold on.......')
             static_speech('Hold on boss I will open my code for you')
-            static_speech('sorry sir i dont have permission for that.')
+            webbrowser.open('https://github.com/Kesavan-Hex/PythonGuichatbot/edit/main/J.A.R.V.I.S.py')
 
 
         # How are you Jarvis
