@@ -5,25 +5,33 @@ import tkinter as tk
 import PIL.Image
 import PIL.ImageTk
 import wmi
+import platform
 import psutil
+import ctypes
 import pyttsx3
 import speech_recognition as sr
 import os
 import time
 import webbrowser
+import requests
+import python_weather
+import asyncio
 import smtplib
 import subprocess
 import datetime
+import lib_platform
+import pip_custom_platform
 
-# speech contain like audio
+
+# speech contain like audiopip
 speech = sr.Recognizer()
 # all variable declaration
-mp3_greeting_list = ['hiboss.mp3', 'helloboss.mp3']
-mp3_open_launch_list = ['yesboss.mp3', 'sureboss.mp3']
-mp3_howareyou_list = ['how_are_you.mp3', 'how_are_you1.mp3', 'how_are_you4.mp3']
-mp3_thanks_list = ['have_a_niceday.mp3', 'thanks.mp3']
-joke_list = ['engjoke1.mp3', 'engjoke2.mp3', 'engjoke3.mp3', 'joke1.mp3', 'joke2.mp3', 'joke3.mp3', 'joke4.mp3']
-mp3_whatareyoudoing_list = ['what_are_you_doing.mp3', 'what_are_you_doing2.mp3']
+#mp3_greeting_list = ['hiboss.mp3', 'helloboss.mp3']
+#mp3_open_launch_list = ['yesboss.mp3', 'sureboss.mp3']
+#mp3_howareyou_list = ['how_are_you.mp3', 'how_are_you1.mp3', 'how_are_you4.mp3']
+#mp3_thanks_list = ['have_a_niceday.mp3', 'thanks.mp3']
+#joke_list = ['engjoke1.mp3', 'engjoke2.mp3', 'engjoke3.mp3', 'joke1.mp3', 'joke2.mp3', 'joke3.mp3', 'joke4.mp3']
+#mp3_whatareyoudoing_list = ['what_are_you_doing.mp3', 'what_are_you_doing2.mp3']
 static_remind_speech = 'alright, i will remind '
 remind_speech = ''
 chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
@@ -46,11 +54,11 @@ def read_voice_cmd():
         speech.adjust_for_ambient_noise(source)
         audio = speech.listen(source=source, timeout=6, phrase_time_limit=6)
     try:
-        voice_text = speech.recognize_google(audio)
+       voice_text = speech.recognize_google(audio)
     except sr.UnknownValueError:
-        pass
+       pass
     except sr.RequestError as e:
-        print("Network error")
+       print("Network error")
     except sr.WaitTimeoutError:
         pass
     return voice_text
@@ -60,7 +68,7 @@ def read_voice_cmd():
 def static_speech(text):
     engine = pyttsx3.init('sapi5')
     voices = engine.getProperty('voices')
-    engine.setProperty('rate', 145)
+    engine.setProperty('rate', 140)
     engine.setProperty('voice', voices[0].id)
     engine.say(text)
     engine.runAndWait()
@@ -142,7 +150,6 @@ def call_jarvis():
         elif 'status' in voice_note:
             static_speech('i am online sir')
             static_speech('setting up all drivers ready to use')
-            static_speech('today date is' + time.strftime("%d:%B:%Y"))
             static_speech(time.strftime("%A"))
             static_speech('and current time is' + time.strftime("%H:%M:%S"))
             battery = psutil.sensors_battery()
@@ -150,28 +157,57 @@ def call_jarvis():
             static_speech('current power level is')
             static_speech(percent)
 
+        elif 'version' in voice_note:
+            c = wmi.WMI()
+            my_system = c.Win32_ComputerSystem()[0]
+            static_speech('i am your virtual assistant')
+            static_speech('commanly called as jarvis')
+            static_speech('i was designed by MR ponragul')
+            static_speech('I am currently running on')
+            static_speech(platform.system())
+            static_speech('Release')
+            static_speech(platform.release())
+            static_speech('Version')
+            static_speech(platform.version())
+            static_speech('my hardware specifications')
+            static_speech(f"Manufacturer: {my_system.Manufacturer}")
+            static_speech(f"Model: {my_system.Model}")
+            static_speech(f"Name: {my_system.Name}")
+            static_speech(f"NumberOfProcessors: {my_system.NumberOfProcessors}")
+            static_speech(f"SystemType: {my_system.SystemType}")
+            static_speech(f"SystemFamily: {my_system.SystemFamily}")
+            battery = psutil.sensors_battery()
+            percent = int(battery.percent)
+            static_speech('my current power level is')
+            static_speech(percent)
+            static_speech('i think this information is useful to you')
+
 
         elif 'open ' in voice_note:
             print ('In Open.......')
-            play_sound(mp3_open_launch_list)
+            static_speech('sure boss')
             link= voice_note.replace('open ','')
             webbrowser.open(link+".com")
-
+        elif 'who is ' in voice_note:
+            print ('In Open.......')
+            static_speech('sure boss')
+            link= voice_note.replace('who is ','')
+            webbrowser.open('https://www.google.com.tr/search?q=' + voice_note)
         # GitHub Code
         elif 'code' in voice_note or 'your code' in voice_note:
             print( 'Hold on.......')
             static_speech('Hold on boss I will open my code for you')
-            webbrowser.open('https://github.com/Kesavan-Hex/PythonGuichatbot/edit/main/J.A.R.V.I.S.py')
+            static_speech('sorry sir i dont have permission for that.')
 
 
         # How are you Jarvis
         elif voice_note == 'how are you' or voice_note == 'how are you jarvis':
             print ('i am fine.......')
-            play_sound(mp3_howareyou_list)
+           ### play_sound(mp3_howareyou_list)
 
         elif 'you doing' in voice_note or 'doing jarvis' in voice_note:
             print ('waiting for you.......')
-            play_sound(mp3_whatareyoudoing_list)
+          ###  play_sound(mp3_whatareyoudoing_list)
 
         elif 'who are you' in voice_note:
             static_speech('i am not really a person, i am  a i robot')
@@ -184,8 +220,11 @@ def call_jarvis():
         elif 'restart' in voice_note or 'reboot' in voice_note:
             static_speech('Rebooting the Machine,Sir')
             os.system("shutdown -t 0 -r -f")
+        elif 'subject' in voice_note:
+            static_speech('your mca subjects sir')
+            subprocess.Popen('explorer "D:\college stuffs\second semester ')
 
-        elif 'calculator' in voice_note or 'calc' in voice_note:
+        elif 'calculator' in voice_note or 'calc' in voice_note or 'math' in voice_note:
             static_speech('opening calculator,Sir')
             subprocess.Popen('C:\\Windows\\System32\\calc.exe')
 
@@ -204,6 +243,9 @@ def call_jarvis():
         elif 'play' in voice_note:
             static_speech('Opening Search result in youtube')
             webbrowser.open('https://www.youtube.com/results?search_query=' + voice_note)
+        elif 'local disk c' in voice_note:
+            static_speech('opening local disk c')
+            subprocess.Popen('explorer "C:\"')
 
         elif 'what is' in voice_note:
             static_speech('ok')
@@ -215,7 +257,7 @@ def call_jarvis():
         # For Joke
         elif ' joke' in voice_note or ' joke for me' in voice_note:
             print ('ok listen.......')
-            play_sound(joke_list)
+        ##    play_sound(joke_list)
             time.sleep(3)
 
         # Brightness
@@ -250,23 +292,37 @@ def call_jarvis():
             static_speech('and time is' + time.strftime("%H:%M:%S"))
 
         elif 'boss' in voice_note:
-            static_speech('my boos is kesavan')
+            static_speech('my boss is kesavan')
 
-        elif 'current weather' in voice_note:
-            static_speech('There is an problem with API try again later')
-            static_speech('Sorry for in convenience')
-          reg_ex = re.search('current weather in (.*)', voice_note)
-            if reg_ex:
-                city = reg_ex.group(1)
-                owm = OWM('ffb68b1e0b6c641259dca86934a9901d')
-                mng = owm.weather_manager()
-                obs = mng.weather_at_place(city)
-                w = obs.get_weather()
-                k = w.get_status()
-                x = w.get_temperature(unit='celsius')
-                static_speech(
-                    'Current weather in %s is %s. The maximum temperature is %0.2f and the minimum temperature is %0.2f degree celcius' % (
-                    city, k, x['temp_max'], x['temp_min']))
+        elif 'weather' in voice_note:
+            BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+            CITY = (+ voice_note)
+            API_KEY = "ffb68b1e0b6c641259dca86934a9901d"
+            # upadting the URL
+            URL = BASE_URL + "q=" + CITY + "&appid=" + API_KEY
+            # HTTP request
+            response = requests.get(URL)
+            # checking the status code of the request
+            if response.status_code == 200:
+                # getting data in the json format
+                data = response.json()
+                # getting the main dict block
+                main = data['main']
+                # getting temperature
+                temperature = main['temp']
+                # getting the humidity
+                humidity = main['humidity']
+                # getting the pressure
+                pressure = main['pressure']
+                # weather report
+                report = data['weather']
+                static_speech(f"{CITY:-^30}")
+                static_speech(f"Temperature: {temperature}")
+                static_speech(f"Humidity: {humidity}")
+                static_speech(f"Pressure: {pressure}")
+                static_speech(f"Weather Report: {report[0]['description']}")
+
+
         # Charge
         elif 'charge' in voice_note:
             battery = psutil.sensors_battery()
@@ -280,26 +336,26 @@ def call_jarvis():
                 static_speech("don't worry, sir charger is connected")
             else:
                 static_speech('sir, no need to connect the charger because i can survive ' + time_left)
-        elif 'send mail' in voice_note or 'mail' in voice_note:
-            static_speech('ok sir')
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.login('jarvismail3@gmail.com', 'password')
-            static_speech('Who is the recepient')
-            print (' tell ')
-            send = read_voice_cmd().lower()
-            print (send)
-            static_speech('what is the subject line')
-            print ('tell')
-            subject = read_voice_cmd().lower()
-            print (subject)
-            static_speech('what is the message')
-            print ('tell')
-            message = read_voice_cmd().lower()
-            print (message)
-            server.sendmail('jarvismail3@gmail.com', + send,
-                            'Subject: ' + subject + ' \n\n ' + message)
+      #  elif 'send mail' in voice_note or 'mail' in voice_note:
+       #     static_speech('ok sir')
+        #    server = smtplib.SMTP('smtp.gmail.com', 587)
+         #   server.ehlo()
+          #  server.starttls()
+           # server.login('jarvismail3@gmail.com', 'password')
+            #static_speech('Who is the recepient')
+           # print (' tell ')
+           # send = read_voice_cmd().lower()
+           # print (send)
+           # static_speech('what is the subject line')
+           # print ('tell')
+           # subject = read_voice_cmd().lower()
+           # print (subject)
+            #static_speech('what is the message')
+            #print ('tell')
+            #message = read_voice_cmd().lower()
+            #print (message)
+            #server.sendmail('jarvismail3@gmail.com', + send,
+             #               'Subject: ' + subject + ' \n\n ' + message)
 
         # Remind command
         elif 'please remind' in voice_note or 'remind it' in voice_note:
@@ -323,7 +379,7 @@ def call_jarvis():
 
         # Thanks
         elif 'thanks' in voice_note or 'thank you' in voice_note:
-            play_sound(mp3_thanks_list)
+          ###  play_sound(mp3_thanks_list)
             print ('Thanks boss')
 
 
@@ -353,11 +409,11 @@ def secs2hours(secs):
 def greet_call():
         hour = int(datetime.datetime.now().hour)
         if hour >= 0 and hour < 12:
-            static_speech("Good morning,Sir,How can i help you with")
+            static_speech("Good morning,Sir, iam your virtual interface,How can i help you with")
         elif hour >= 12 and hour < 18:
-            static_speech("Good Afternoon,Sir,How can i help you with")
+            static_speech("Good Afternoon,Sir,iam your virtual interface,How can i help you with")
         else:
-            static_speech("Happy Night,Sir,How can i help you with")
+            static_speech("Happy Night,Sir,iam your virtual interface,How can i help you with")
         call_jarvis()
 
 def exit():
@@ -378,11 +434,10 @@ if __name__ == '__main__':
  label.image = photo  # keep a reference!
  label.pack()
 
- root.resizable(False, False)
+ root.resizable()
  root.config(background='lightblue')
  tk.Button(root, text="START", height=2, width=15, background='#11b1f5', font="Times 12 bold", command=lambda: greet_call()).place(x=150,y=50)
- tk.Button(root, text="CLOSE", height=2, width=15, background='#fc1f0f', font="Times 12 bold", command=lambda: exit()).place(x=1600,y=50)
+ tk.Button(root, text="CLOSE", height=2, width=15, background='#fc1f0f', font="Times 12 bold", command=lambda: exit()).place(x=450,y=50)
 
  root.mainloop()
-
 
