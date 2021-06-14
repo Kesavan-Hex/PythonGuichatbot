@@ -39,9 +39,9 @@ textbox_inputValue = ''
 
 
 # JARVIS'S TALK  ======================================================================================================= SENSITIVE BRAIN
-def play_sound(mp3_list):
-    mp3 = random.choice(mp3_list)
-    playsound(mp3)
+#def play_sound(mp3_list):
+ #   mp3 = random.choice(mp3_list)
+  #  playsound(mp3)
 
 
 # JARVIS'S EARS ======================================================================================================== SENSITIVE BRAIN
